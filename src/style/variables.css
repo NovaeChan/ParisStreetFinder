@@ -1,0 +1,9 @@
+:root{
+    --progress: 0%;
+}
+
+@property --progress {
+    syntax: "<length>";
+    initial-value: 0%;
+    inherits: true;
+  }
