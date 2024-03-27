@@ -78,12 +78,14 @@ export default function App() {
 
   //Add guess to array of street
   function getStreetName(guess, toFind){
-    const subArr = toFind.filter(street => removeAccents(street.nomvoie.toLowerCase()).includes(guess));
-
-    subArr.forEach(obj => streetFound.push({
-      id: obj.id,
-      typo_min: obj.typo_min
-    }));
+    for(const street of toFind){
+      if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess){
+        streetFound.push({
+          id: street.id,
+          typo_min: street.typo_min
+        })
+      }
+    }
   }
 
   function updateFoundStreetSideBar(){
