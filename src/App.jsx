@@ -1,12 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
+import removeAccents from 'remove-accents'
 import fetchData from './api/apiCall'
 import { environment } from './Environments/EnvDev';
 mapboxgl.accessToken = environment.mapbox.accessToken;
 
 export default function App() {
   const streetFound = [];
-
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng, setLng] = useState(2.3483);
@@ -36,7 +36,7 @@ export default function App() {
     streetInput.addEventListener("keypress", (e) => {
       if(e.key === 'Enter'){
         if(e.target.value.length > 0){
-          const guessedStreet = e.target.value.toLowerCase();
+          const guessedStreet = removeAccents(e.target.value.toLowerCase());
           if(!isStreetExist(guessedStreet)){
             console.log(false);
             //Animation input
@@ -44,9 +44,8 @@ export default function App() {
             if(!isAlreadyGuess(guessedStreet)){
               getStreetName(guessedStreet, toFind);
               updatePercentage();
-              console.log(streetFound);
               updateFoundStreetSideBar();
-              //Animation input + ajouter dans la liste des rues trouvées 
+              //Animation input
               //Ajouter à la map la rue 
             }
             else {
@@ -60,26 +59,31 @@ export default function App() {
   });
 
   function isStreetExist(guess){
-    let found = false;
-    toFind.forEach(street => {
-      if(street.typo.toLowerCase().includes(guess)){
-        found = true;
-        return true
-      }
-    })
-    return found;
+    for (const street of toFind){
+      if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess) return true
+    }
+    return false;
   }
-
 
   function isAlreadyGuess(guess) {
     if(streetFound.length === 0) return false;
-    return streetFound.filter(str => str.toLowerCase().includes(guess.toLowerCase())).length > 0;
+
+    for (const street of streetFound){
+      if(removeAccents(street.typo_min.toLowerCase()).includes(guess)){
+        return true;
+      }
+    }
+    return false;
   }
 
   //Add guess to array of street
   function getStreetName(guess, toFind){
-    const subArr = toFind.filter(street => street.typo_min.toLowerCase().includes(guess.toLowerCase()));
-    subArr.forEach(obj => streetFound.push(obj.typo_min));
+    const subArr = toFind.filter(street => removeAccents(street.nomvoie.toLowerCase()).includes(guess));
+
+    subArr.forEach(obj => streetFound.push({
+      id: obj.id,
+      typo_min: obj.typo_min
+    }));
   }
 
   function updateFoundStreetSideBar(){
@@ -88,7 +92,7 @@ export default function App() {
 
     for(let i = lis.length; i < streetFound.length; i++ ){
       const li = document.createElement("li");
-      li.textContent = streetFound[i];
+      li.textContent = streetFound[i].typo_min;
       ul.append(li);
     }
 
@@ -108,10 +112,6 @@ export default function App() {
   function updateFoundStreetMap(){
     //Update de la map à l'aide du guess de la personne après vérif
   }
-
-
-  //Check si l'entrée est dans la liste de l'API
-  //Si l'entrée ok alors on l'ajoute à un tableau + ajout dans la liste de la sideBar
   //Ajout sur la carte à l'aide des données de géolocalisations 
 
   return (
