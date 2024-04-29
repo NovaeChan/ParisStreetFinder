@@ -1,6 +1,7 @@
 # Paris Street Finder
 
 Paris Street Finder est une application web conçue pour tester vos connaissances des rues parisiennes. Le but est simple : retrouver autant de noms de rues que possible dans la ville de Paris dans un laps de temps donné. Que vous soyez un Parisien local cherchant à tester votre familiarité avec la ville ou un visiteur curieux de son agencement complexe, Paris Street Finder offre une manière engageante d'explorer et d'apprendre sur les rues de Paris.
+L'application est accessible à cette adresse : https://novaechan.github.io/ParisStreetFinder/
 
 ## Fonctionnalités
 
