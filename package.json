@@ -2,7 +2,7 @@
   "name": "parisstreetfinder",
   "private": true,
   "version": "0.0.2",
-  "homepage": "https://NovaeChan.github.io/ParisStreetFinder/",
+  "homepage": "https://novaechan.github.io/ParisStreetFinder/",
   "type": "module",
   "scripts": {
     "predeploy" : "npm run build",
