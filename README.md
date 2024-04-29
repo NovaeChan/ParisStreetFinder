@@ -30,4 +30,3 @@ Paris Street Finder est développé en utilisant les technologies suivantes :
     React : https://reactjs.org/
     Vite : https://vitejs.dev/
     Mapbox : https://www.mapbox.com/
->>>>>>> 6235a0ef49480442b478b68c6116fa40b984b2a6
