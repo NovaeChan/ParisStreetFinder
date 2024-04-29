@@ -5,6 +5,9 @@ export default function FetchData() {
         if(data.typo.includes("VOIE ")){
             datas.splice(i, 1);
         }
+        // if(data.typo.includes("PLACE")){
+        //     datas.splice(i, 1);
+        // }
     }
     return datas;    
 }

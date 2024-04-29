@@ -7,6 +7,7 @@ mapboxgl.accessToken = environment.mapbox.accessToken;
 
 export default function App() {
   const streetFound = [];
+  const streetLayer = [];
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [lng, setLng] = useState(2.3483);
@@ -45,8 +46,8 @@ export default function App() {
               getStreetName(guessedStreet, toFind);
               updatePercentage();
               updateFoundStreetSideBar();
+              updateMap()
               //Animation input
-              //Ajouter à la map la rue 
             }
             else {
               console.log("Déjà trouvée")
@@ -82,8 +83,22 @@ export default function App() {
       if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess){
         streetFound.push({
           id: street.id,
-          typo_min: street.typo_min
+          typo_min: street.typo_min,
+          data: {
+            "type": "FeatureCollection",
+            "features": [
+              street.geo_shape
+            ]
+          }
         })
+        streetLayer.push({
+          id: street.id,
+          typo_min: street.typo_min,
+          data: {
+            "type": "Feature",
+            "geometry": street.geo_shape.geometry
+          }
+          })
       }
     }
   }
@@ -111,8 +126,37 @@ export default function App() {
     percentNumber.innerHTML = percentage;
   }
 
-  function updateFoundStreetMap(){
-    //Update de la map à l'aide du guess de la personne après vérif
+  function updateMap(){
+    for (const street of streetLayer){
+      console.log(street);
+      map.current.addLayer({
+          'id': street.id+"fill",
+          'type': 'fill',
+          'source': {
+            type: "geojson",
+            data: street.data
+          },
+          'layout': {},
+          'paint': {
+            'fill-color': '#0080ff', // blue color fill
+            'fill-opacity': 0.5
+          }
+      });
+      map.current.addLayer({
+        'id': street.id+"outline",
+        'type': 'line',
+        'source': {
+          type: "geojson",
+          data: street.data
+        },
+        'layout': {},
+        'paint': {
+            'line-color': '#000',
+            'line-width': 1
+        }
+    });
+    }
+    streetLayer.length = 0;
   }
   //Ajout sur la carte à l'aide des données de géolocalisations 
 
