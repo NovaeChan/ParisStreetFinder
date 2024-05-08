@@ -1,189 +1,122 @@
 import { useRef, useEffect, useState } from 'react';
+import { MapContext } from './components/MapContext';
 import mapboxgl from 'mapbox-gl';
-import removeAccents from 'remove-accents'
-import fetchData from './api/apiCall'
 import { environment } from './Environments/EnvDev';
+import IconButton from '@mui/material/IconButton';
+import { grey } from '@mui/material/colors';
+import SettingsIcon from '@mui/icons-material/SettingsOutlined'
+import MuiTextField from './components/MuiTextField';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 mapboxgl.accessToken = environment.mapbox.accessToken;
 
 export default function App() {
-  const streetFound = [];
-  const streetLayer = [];
+  //Mapbox
   const mapContainer = useRef(null);
-  const map = useRef(null);
+  const [map, setMap] = useState(null);
   const [lng, setLng] = useState(2.3483);
   const [lat, setLat] = useState(48.8577);
   const [zoom, setZoom] = useState(12.66);
 
-  const toFind = fetchData();
-  const numbersOfStreet = toFind.length;
+  //Button State
+  const [open, setOpen] = useState(false);
+  
+  const buttonColor = grey[50];
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
 
   useEffect(() => {
-    if (map.current) return; // initialize map only once
-      map.current = new mapboxgl.Map({
+    if (map) return; // initialize map only once
+    if (mapContainer.current) {
+      const newMap = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
         center: [lng, lat],
         zoom: zoom
-      }
-    );
-
-    map.current.on('move', () => {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
-      setZoom(map.current.getZoom().toFixed(2));
-    });
-
-    const streetInput = document.querySelector('.streetInput');
-    streetInput.addEventListener("keypress", (e) => {
-      if(e.key === 'Enter'){
-        if(e.target.value.length > 0){
-          const guessedStreet = removeAccents(e.target.value.toLowerCase());
-          if(!isStreetExist(guessedStreet)){
-            console.log(false);
-            //Animation input
-          } else {
-            if(!isAlreadyGuess(guessedStreet)){
-              getStreetName(guessedStreet, toFind);
-              updatePercentage();
-              updateFoundStreetSideBar();
-              updateMap()
-              //Animation input
-            }
-            else {
-              console.log("Déjà trouvée")
-              //Animation input déjà trouvée
-            }
-          }  
-        }
-      }
-    })
-  });
-
-  function isStreetExist(guess){
-    for (const street of toFind){
-      if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess) return true
-    }
-    return false;
-  }
-
-  function isAlreadyGuess(guess) {
-    if(streetFound.length === 0) return false;
-
-    for (const street of streetFound){
-      if(removeAccents(street.typo_min.toLowerCase()).includes(guess)){
-        return true;
-      }
-    }
-    return false;
-  }
-
-  //Add guess to array of street
-  function getStreetName(guess, toFind){
-    for(const street of toFind){
-      if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess){
-        streetFound.push({
-          id: street.id,
-          typo_min: street.typo_min,
-          data: {
-            "type": "FeatureCollection",
-            "features": [
-              street.geo_shape
-            ]
-          }
-        })
-        streetLayer.push({
-          id: street.id,
-          typo_min: street.typo_min,
-          data: {
-            "type": "Feature",
-            "geometry": street.geo_shape.geometry
-          }
-          })
-      }
-    }
-  }
-
-  function updateFoundStreetSideBar(){
-    const ul = document.querySelector('.sideBar-streetFound');
-    const lis = ul.querySelectorAll('li');
-
-    for(let i = lis.length; i < streetFound.length; i++ ){
-      const li = document.createElement("li");
-      li.textContent = streetFound[i].typo_min;
-      ul.append(li);
-    }
-
-  }
-
-  function updatePercentage(){
-    const percentNumber = document.querySelector('.percentNumber');
-    const percentBar = document.querySelector('.sideBar-percentageBar');
-    const percentage = Math.round(((streetFound.length / numbersOfStreet ) * 100)*1000)/1000;
-    //Update bar
-    percentBar.style.setProperty("--progress", percentage+"%");
-    percentBar.style.transition = "width 2s ease 2s";
-    //Update number
-    percentNumber.innerHTML = percentage;
-  }
-
-  function updateMap(){
-    for (const street of streetLayer){
-      console.log(street);
-      map.current.addLayer({
-          'id': street.id+"fill",
-          'type': 'fill',
-          'source': {
-            type: "geojson",
-            data: street.data
-          },
-          'layout': {},
-          'paint': {
-            'fill-color': '#0080ff', // blue color fill
-            'fill-opacity': 0.5
-          }
       });
-      map.current.addLayer({
-        'id': street.id+"outline",
-        'type': 'line',
-        'source': {
-          type: "geojson",
-          data: street.data
-        },
-        'layout': {},
-        'paint': {
-            'line-color': '#000',
-            'line-width': 1
-        }
-    });
+
+      newMap.on('move', () => {
+        setLng(newMap.getCenter().lng.toFixed(4));
+        setLat(newMap.getCenter().lat.toFixed(4));
+        setZoom(newMap.getZoom().toFixed(2));
+      });
+
+      setMap(newMap); // Mettez à jour l'état de la carte
     }
-    streetLayer.length = 0;
-  }
-  //Ajout sur la carte à l'aide des données de géolocalisations 
+  }, [map, lng, lat, zoom]);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
-    <div className='container'>
-      <div className='wrapper'>
-        <div className='input-wrapper'>
-          <input type='text' className='streetInput' placeholder='Nom de la rue'></input>
+    <MapContext.Provider value={map}>
+      <div className='container'>
+        <div className='wrapper'>
+          <div className='input-wrapper'>
+            <MuiTextField />
+            {/* <input type='text' className='streetInput' placeholder='Nom de la rue'></input> */}
+          </div>
+          <div className='button-wrapper'>
+            <IconButton variant="outlined" color={buttonColor} onClick={handleOpen}>
+              <SettingsIcon style={{ color: grey[900] }}/>
+            </IconButton>
+          </div>
+          <div ref={mapContainer} className="map-container" />
+          <Modal
+            aria-labelledby="transition-modal-title"
+            aria-describedby="transition-modal-description"
+            open={open}
+            onClose={handleClose}
+            closeAfterTransition
+            slots={{ backdrop: Backdrop }}
+            slotProps={{
+              backdrop: {
+                timeout: 500,
+              },
+            }}>
+              <Fade in={open}>
+                <Box sx={style}>
+                  <Typography id="transition-modal-title" variant="h6" component="h2">
+                    Text in a modal
+                  </Typography>
+                  <Typography id="transition-modal-description" sx={{ mt: 2 }}>
+                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                  </Typography>
+                </Box>
+              </Fade>
+          </Modal>
         </div>
-        <div ref={mapContainer} className="map-container" />
-      </div>
-      <div className='sideBar'>
-        <div className='sideBar-percentage'>
-          <span className='percentNumber'>0.0</span>
-          <span>% </span>
-          <span>des rues trouvées</span>
-        </div>
-        <div className='sideBar-percentageWrapper'>
-          <div className='sideBar-percentageBar'></div>
-        </div>
-        <hr />
-        <div className='sideBar-history'>
-          <ul className='sideBar-streetFound'>
+        <div className='sideBar'>
+          <div className='sideBar-percentage'>
+            <span className='percentNumber'>0.0</span>
+            <span>% </span>
+            <span>des rues trouvées</span>
+          </div>
+          <div className='sideBar-percentageWrapper'>
+            <div className='sideBar-percentageBar'></div>
+          </div>
+          <hr />
+          <div className='sideBar-history'>
+            <ul className='sideBar-streetFound'>
 
-          </ul>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
+    </MapContext.Provider>
   );
 }
