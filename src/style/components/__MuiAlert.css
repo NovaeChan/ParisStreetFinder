@@ -1,0 +1,7 @@
+.alert-box{
+    width: 450px; 
+    position:fixed;
+    top: -35%;
+    left: 0%;
+    margin: 0 auto;
+}

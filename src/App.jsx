@@ -6,11 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import { grey } from '@mui/material/colors';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined'
 import MuiTextField from './components/MuiTextField';
-import Modal from '@mui/material/Modal';
-import Fade from '@mui/material/Fade';
-import Backdrop from '@mui/material/Backdrop';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
+import MuiModal from './components/MuiModal';
 
 mapboxgl.accessToken = environment.mapbox.accessToken;
 
@@ -22,22 +18,9 @@ export default function App() {
   const [lat, setLat] = useState(48.8577);
   const [zoom, setZoom] = useState(12.66);
 
-  //Button State
   const [open, setOpen] = useState(false);
   
   const buttonColor = grey[50];
-
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
 
   useEffect(() => {
     if (map) return; // initialize map only once
@@ -76,29 +59,7 @@ export default function App() {
             </IconButton>
           </div>
           <div ref={mapContainer} className="map-container" />
-          <Modal
-            aria-labelledby="transition-modal-title"
-            aria-describedby="transition-modal-description"
-            open={open}
-            onClose={handleClose}
-            closeAfterTransition
-            slots={{ backdrop: Backdrop }}
-            slotProps={{
-              backdrop: {
-                timeout: 500,
-              },
-            }}>
-              <Fade in={open}>
-                <Box sx={style}>
-                  <Typography id="transition-modal-title" variant="h6" component="h2">
-                    Text in a modal
-                  </Typography>
-                  <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-                    Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                  </Typography>
-                </Box>
-              </Fade>
-          </Modal>
+          <MuiModal openState={open} handleClose={handleClose}/>
         </div>
         <div className='sideBar'>
           <div className='sideBar-percentage'>
