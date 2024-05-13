@@ -21,34 +21,37 @@ export function updatePercentage(streetFound, datas){
     percentNumber.innerHTML = percentage;
 }
 
-export function updateMap(streetLayer, map){
-    for (const street of streetLayer){
-      map.addLayer({
-          'id': street.id+"fill",
-          'type': 'fill',
-          'source': {
-            type: "geojson",
-            data: street.data
-          },
-          'layout': {},
-          'paint': {
-            'fill-color': '#0080ff', // blue color fill
-            'fill-opacity': 0.5
-          }
-      });
-      map.addLayer({
-        'id': street.id+"outline",
-        'type': 'line',
-        'source': {
-          type: "geojson",
-          data: street.data
-        },
-        'layout': {},
-        'paint': {
-            'line-color': '#000',
-            'line-width': 1
-        }
+
+
+export function updateMap(streetFound, map, index){
+  for(let i = index; i < streetFound.length; i++){
+    map.addLayer({
+      'id': streetFound[i].id+"fill",
+      'type': 'fill',
+      'source': {
+        type: "geojson",
+        data: streetFound[i].data
+      },
+      'layout': {},
+      'paint': {
+        'fill-color': '#0080ff', // blue color fill
+        'fill-opacity': 0.5
+      }
     });
-    }
-    streetLayer.length = 0;
+    map.addLayer({
+      'id': streetFound[i].id+"outline",
+      'type': 'line',
+      'source': {
+        type: "geojson",
+        data: streetFound[i].data
+      },
+      'layout': {},
+      'paint': {
+          'line-color': '#000',
+          'line-width': 1
+      }
+    })
+    index = i+1;
+  }
+  return index;
 }

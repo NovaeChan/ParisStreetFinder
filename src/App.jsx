@@ -7,6 +7,7 @@ import { grey } from '@mui/material/colors';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined'
 import MuiTextField from './components/MuiTextField';
 import MuiModal from './components/MuiModal';
+import { processGuess } from './utils/checkingData';
 
 mapboxgl.accessToken = environment.mapbox.accessToken;
 
@@ -23,23 +24,43 @@ export default function App() {
   const buttonColor = grey[50];
 
   useEffect(() => {
-    if (map) return; // initialize map only once
-    if (mapContainer.current) {
-      const newMap = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
-        center: [lng, lat],
-        zoom: zoom
+    const loadLocalStorageData = () => {
+      return new Promise((resolve, reject) => {
+        const savedStreet = localStorage.getItem("ParisStreetFinder");
+        if (savedStreet) {
+          const formatedStreet = JSON.parse(savedStreet);
+          console.log(formatedStreet);
+          resolve(formatedStreet);
+        } else {
+          reject("Aucune donnée trouvée dans localStorage");
+        }
       });
+    };
 
-      newMap.on('move', () => {
-        setLng(newMap.getCenter().lng.toFixed(4));
-        setLat(newMap.getCenter().lat.toFixed(4));
-        setZoom(newMap.getZoom().toFixed(2));
-      });
-
-      setMap(newMap); // Mettez à jour l'état de la carte
-    }
+    const initializeMap = (formatedStreet) => {
+      if (map) return; // initialize map only once
+      if (mapContainer.current) {
+        const newMap = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
+          center: [lng, lat],
+          zoom: zoom
+        });
+        newMap.on('move', () => {
+          setLng(newMap.getCenter().lng.toFixed(4));
+          setLat(newMap.getCenter().lat.toFixed(4));
+          setZoom(newMap.getZoom().toFixed(2));
+        });
+        
+        newMap.on('load', () => {
+          formatedStreet.forEach(street => {
+            console.log(street.typo_min);
+            processGuess(street.typo_min, newMap);
+          })
+        });
+        setMap(newMap); // Mettez à jour l'état de la carte
+      }};
+      loadLocalStorageData().then(initializeMap).catch(error => console.error("Erreur lors du chargement des données locale", error))
   }, [map, lng, lat, zoom]);
 
   const handleOpen = () => setOpen(true);
@@ -72,9 +93,7 @@ export default function App() {
           </div>
           <hr />
           <div className='sideBar-history'>
-            <ul className='sideBar-streetFound'>
-
-            </ul>
+            <ul className='sideBar-streetFound'></ul>
           </div>
         </div>
       </div>

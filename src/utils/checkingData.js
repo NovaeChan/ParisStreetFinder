@@ -3,7 +3,7 @@ import datas from '../api/denominations-emprises-voies-actuelles.json';
 import {updateFoundStreetSideBar, updatePercentage, updateMap} from './updateDocument';
 
 const streetFound = [];
-const streetLayer = [];
+let index = 0;
 
 export function processGuess(guess, map){
     const lowerGuess = removeAccents(guess.toLowerCase());
@@ -16,7 +16,9 @@ export function processGuess(guess, map){
     addToStreetFound(lowerGuess, datas);
     updatePercentage(streetFound, datas);
     updateFoundStreetSideBar(streetFound);
-    updateMap(streetLayer, map);
+    index = updateMap(streetFound, map, index);
+    //Save the game
+    localStorage.setItem("ParisStreetFinder", JSON.stringify(streetFound))
 }
 
 export function isStreetExist(guess){
@@ -29,23 +31,13 @@ export function isStreetExist(guess){
 export function addToStreetFound(guess, datas){
     for(const street of datas){
         if(street.typo.toLowerCase() == guess || removeAccents(street.nomvoie.toLowerCase()) == guess){
-        streetFound.push({
-            id: street.id,
-            typo_min: street.typo_min,
-            data: {
-            "type": "FeatureCollection",
-            "features": [
-                street.geo_shape
-            ]
-            }
-        })
-        streetLayer.push({
-            id: street.id,
-            typo_min: street.typo_min,
-            data: {
-            "type": "Feature",
-            "geometry": street.geo_shape.geometry
-            }
+            streetFound.push({
+                id: street.id,
+                typo_min: street.typo_min,
+                data: {
+                "type": "Feature",
+                "geometry": street.geo_shape.geometry
+                }
             })
         }
     }
@@ -53,7 +45,6 @@ export function addToStreetFound(guess, datas){
 
 export function isAlreadyGuess(guess, streetFound) {
     if(streetFound.length === 0) return false;
-
     for (const street of streetFound){
       if(removeAccents(street.typo_min.toLowerCase()).includes(guess)){
         return true;
