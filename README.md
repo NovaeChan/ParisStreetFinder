@@ -35,10 +35,10 @@ Paris Street Finder est développé en utilisant les technologies suivantes :
 
 Voici ce que j'ai prévu pour les prochaines mise à jour. Ceci est une liste non ordonnée des mise à jour que je compte réaliser
 
-- Sauvegarde de la progression
-- Suppression de la progression
-- Possibilité de partager sa progression
-- Mini tutoriel
-- Mise à jour de l'API utilisée
-- Amélioration de l'interface graphique
-- Optimisation du chargement de la page
+[] Sauvegarde de la progression
+[] Suppression de la progression
+[] Possibilité de partager sa progression
+[] Mini tutoriel
+[x] Mise à jour de l'API utilisée
+[] Amélioration de l'interface graphique
+[] Optimisation du chargement de la page
