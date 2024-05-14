@@ -4,7 +4,7 @@ export function updateFoundStreetSideBar(streetFound){
 
     for(let i = lis.length; i < streetFound.length; i++ ){
       const li = document.createElement("li");
-      li.textContent = streetFound[i].typo_min;
+      li.textContent = streetFound[i].l_longmin;
       ul.append(li);
     }
 }
@@ -21,36 +21,27 @@ export function updatePercentage(streetFound, datas){
     percentNumber.innerHTML = percentage;
 }
 
-
-
 export function updateMap(streetFound, map, index){
   for(let i = index; i < streetFound.length; i++){
-    map.addLayer({
-      'id': streetFound[i].id+"fill",
-      'type': 'fill',
-      'source': {
-        type: "geojson",
-        data: streetFound[i].data
-      },
-      'layout': {},
-      'paint': {
-        'fill-color': '#0080ff', // blue color fill
-        'fill-opacity': 0.5
-      }
+    console.log(streetFound);
+    console.log(map);
+    map.addSource("id"+streetFound[i].id, {
+      'type': 'geojson',
+      'data': streetFound[i].data
     });
     map.addLayer({
-      'id': streetFound[i].id+"outline",
+      'id': streetFound[i].id+"line",
       'type': 'line',
-      'source': {
-        type: "geojson",
-        data: streetFound[i].data
+      'source': "id"+streetFound[i].id,
+      'layout': {
+        'line-join': 'round',
+        'line-cap': 'round'
       },
-      'layout': {},
       'paint': {
-          'line-color': '#000',
-          'line-width': 1
+        'line-color': '#0080ff',
+        'line-width': 6
       }
-    })
+    });
     index = i+1;
   }
   return index;

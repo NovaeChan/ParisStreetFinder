@@ -14,6 +14,9 @@ export default function MuiTextField(){
         onKeyDown={(e) => {
             if(e.key === "Enter" && e.target.value.length > 0){
                 setisValid(processGuess(e.target.value, map))
+                if(!isValid){
+                    document.getElementById(":r1:").value = "";
+                }
             }
         }}
         InputLabelProps={{

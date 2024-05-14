@@ -10,6 +10,9 @@ import MuiModal from './components/MuiModal';
 import { processGuess } from './utils/checkingData';
 
 mapboxgl.accessToken = environment.mapbox.accessToken;
+const localStreetFound = JSON.parse(localStorage.getItem("ParisStreetFinder"));
+console.log(localStreetFound);
+// localStorage.removeItem("ParisStreetFinder");
 
 export default function App() {
   //Mapbox
@@ -24,20 +27,6 @@ export default function App() {
   const buttonColor = grey[50];
 
   useEffect(() => {
-    const loadLocalStorageData = () => {
-      return new Promise((resolve, reject) => {
-        const savedStreet = localStorage.getItem("ParisStreetFinder");
-        if (savedStreet) {
-          const formatedStreet = JSON.parse(savedStreet);
-          console.log(formatedStreet);
-          resolve(formatedStreet);
-        } else {
-          reject("Aucune donnée trouvée dans localStorage");
-        }
-      });
-    };
-
-    const initializeMap = (formatedStreet) => {
       if (map) return; // initialize map only once
       if (mapContainer.current) {
         const newMap = new mapboxgl.Map({
@@ -52,15 +41,15 @@ export default function App() {
           setZoom(newMap.getZoom().toFixed(2));
         });
         
+        setMap(newMap);
         newMap.on('load', () => {
-          formatedStreet.forEach(street => {
-            console.log(street.typo_min);
-            processGuess(street.typo_min, newMap);
-          })
+          if(localStreetFound){
+            localStreetFound.forEach(street => {
+              processGuess(street.l_longmin, newMap);
+            })
+          }
         });
-        setMap(newMap); // Mettez à jour l'état de la carte
-      }};
-      loadLocalStorageData().then(initializeMap).catch(error => console.error("Erreur lors du chargement des données locale", error))
+      }
   }, [map, lng, lat, zoom]);
 
   const handleOpen = () => setOpen(true);
