@@ -37,10 +37,10 @@ footer, header, hgroup, menu, nav, section {
     top: 5rem;
     left: 50%;
     width: 25rem;
-    height: 3rem;
+    height: 56px;
     z-index: 1;
-
-    input {
+    background-color: rgb(15, 18, 20, 80%);
+    /* input {
         height: 100%;
         width: 75%;
         border-radius: 30px;
@@ -52,7 +52,7 @@ footer, header, hgroup, menu, nav, section {
             font-size: 20px;
             margin-left: 10px;
         }
-    }
+    } */
 }
 
 .map-container {
@@ -121,4 +121,26 @@ hr {
 .sideBar-streetFound {
     width: 80%;
     margin: 0 auto;
+}
+
+.button-wrapper {
+    position: absolute;
+    top: 1.5rem;
+    left: 1%;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    z-index: 1;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.errorInput {
+    border-color: #a02725;
+}
+
+.MuiTextField-root {
+    color:#fff;
 }
