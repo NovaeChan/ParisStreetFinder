@@ -25,32 +25,40 @@ export default function App() {
   const [open, setOpen] = useState(false);
   
   const buttonColor = grey[50];
-
+  let index = 1;
   useEffect(() => {
-      if (map) return; // initialize map only once
-      if (mapContainer.current) {
-        const newMap = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
-          center: [lng, lat],
-          zoom: zoom
-        });
-        newMap.on('move', () => {
-          setLng(newMap.getCenter().lng.toFixed(4));
-          setLat(newMap.getCenter().lat.toFixed(4));
-          setZoom(newMap.getZoom().toFixed(2));
-        });
-        
-        setMap(newMap);
-        newMap.on('load', () => {
-          if(localStreetFound){
-            localStreetFound.forEach(street => {
-              processGuess(street.l_longmin, newMap);
-            })
-          }
-        });
-      }
-  }, [map, lng, lat, zoom]);
+    loadMap();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadMap = () => { 
+    if (map) return; // initialize map only once
+    if (mapContainer.current) {
+      const newMap = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
+        center: [lng, lat],
+        zoom: zoom
+      });
+      newMap.on('move', () => {
+        setLng(newMap.getCenter().lng.toFixed(4));
+        setLat(newMap.getCenter().lat.toFixed(4));
+        setZoom(newMap.getZoom().toFixed(2));
+      });
+      
+      setMap(newMap);
+      
+      //Trouver un moyen de faire en sorte de load après le useeffect. Problème de syncro
+      newMap.on('load', () => {
+        if(localStreetFound && index <= localStreetFound.length ){
+          localStreetFound.forEach(street => {
+            processGuess(street.l_longmin, newMap);
+            index++;
+          })
+        }
+      });
+    }
+  }
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);

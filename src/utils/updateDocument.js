@@ -1,12 +1,14 @@
 export function updateFoundStreetSideBar(streetFound){
     const ul = document.querySelector('.sideBar-streetFound');
     const lis = ul.querySelectorAll('li');
-
-    for(let i = lis.length; i < streetFound.length; i++ ){
+    let i = streetFound.length - 1;
+    while(i >= lis.length){
       const li = document.createElement("li");
       li.textContent = streetFound[i].l_longmin;
-      ul.append(li);
+      ul.insertBefore(li, ul.firstChild);
+      i--
     }
+
 }
 
 export function updatePercentage(streetFound, datas){
@@ -23,8 +25,7 @@ export function updatePercentage(streetFound, datas){
 
 export function updateMap(streetFound, map, index){
   for(let i = index; i < streetFound.length; i++){
-    console.log(streetFound);
-    console.log(map);
+    console.log("updateMap : " + streetFound[i].l_longmin);
     map.addSource("id"+streetFound[i].id, {
       'type': 'geojson',
       'data': streetFound[i].data

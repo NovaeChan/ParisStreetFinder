@@ -10,7 +10,7 @@ export default function MuiButton(){
     const handleOpen = (e) => {
         const target = e.target.id;
         if(target === "restart"){
-            setMessage("Fonctionnalitée pas encore implémentée. (Recommencer)")
+            localStorage.clear();
             console.log(message)
         }
         if(target === "import"){
