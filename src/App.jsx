@@ -7,93 +7,107 @@ import { grey } from '@mui/material/colors';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined'
 import MuiTextField from './components/MuiTextField';
 import MuiModal from './components/MuiModal';
-import { processGuess } from './utils/checkingData';
+import datas from './api/formateddata.json';
+import { updatePercentage, updateSideBar } from './utils/updateDocument';
+import { addToStreetFoundFromLocal } from './utils/checkingData';
 
 mapboxgl.accessToken = environment.mapbox.accessToken;
-const localStreetFound = JSON.parse(localStorage.getItem("ParisStreetFinder"));
-console.log(localStreetFound);
-// localStorage.removeItem("ParisStreetFinder");
+const localStreets = JSON.parse(localStorage.getItem("ParisStreetFinder"));
+console.log(localStreets)
 
 export default function App() {
   //Mapbox
   const mapContainer = useRef(null);
-  const [map, setMap] = useState(null);
-  const [lng, setLng] = useState(2.3483);
-  const [lat, setLat] = useState(48.8577);
-  const [zoom, setZoom] = useState(12.66);
+  const map = useRef(null);
+  const [lng, setLng] = useState(2.36);
+  const [lat, setLat] = useState(48.85);
+  const [zoom, setZoom] = useState(12);
 
   const [open, setOpen] = useState(false);
   
   const buttonColor = grey[50];
-  let index = 1;
-  useEffect(() => {
-    loadMap();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  const loadMap = () => { 
-    if (map) return; // initialize map only once
-    if (mapContainer.current) {
-      const newMap = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
-        center: [lng, lat],
-        zoom: zoom
+  useEffect(() => {
+    if (map.current) return; // initialize map only once
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/novae/cltypukrj006k01pfatxogdfx/draft',
+      center: [lng, lat],
+      zoom: zoom
+    });
+
+    map.current.on('move', () => {
+      setLng(map.current.getCenter().lng.toFixed(4));
+      setLat(map.current.getCenter().lat.toFixed(4));
+      setZoom(map.current.getZoom().toFixed(2));
+    });
+
+    map.current.on('load', () => {
+      if(localStreets){
+        updateWithLocalStorage(localStreets, map);
+        addToStreetFoundFromLocal(localStreets);
+        updatePercentage(localStreets, datas);
+        updateSideBar(localStreets);
+      }
+    })
+  });
+
+  function updateWithLocalStorage(streets, map){
+    streets.forEach(street => {
+      map.current.addSource("id"+street.id,{
+        "type": "geojson",
+        "data": street.data
       });
-      newMap.on('move', () => {
-        setLng(newMap.getCenter().lng.toFixed(4));
-        setLat(newMap.getCenter().lat.toFixed(4));
-        setZoom(newMap.getZoom().toFixed(2));
-      });
-      
-      setMap(newMap);
-      
-      //Trouver un moyen de faire en sorte de load après le useeffect. Problème de syncro
-      newMap.on('load', () => {
-        if(localStreetFound && index <= localStreetFound.length ){
-          localStreetFound.forEach(street => {
-            processGuess(street.l_longmin, newMap);
-            index++;
-          })
+      map.current.addLayer({
+        'id': street.id+"line",
+        'type': 'line',
+        'source': "id"+street.id,
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#0080ff',
+          'line-width': 6
         }
-      });
-    }
+      })
+    })
   }
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   return (
-    <MapContext.Provider value={map}>
-      <div className='container'>
-        <div className='wrapper'>
-          <div className='input-wrapper'>
-            <MuiTextField />
-            {/* <input type='text' className='streetInput' placeholder='Nom de la rue'></input> */}
+      <MapContext.Provider value={map}>
+        <div className='container'>
+          <div className='wrapper'>
+            
+              <div className='input-wrapper'>
+                <MuiTextField />
+              </div>
+              <div className='button-wrapper'>
+                <IconButton variant="outlined" color={buttonColor} onClick={handleOpen}>
+                  <SettingsIcon style={{ color: grey[900] }}/>
+                </IconButton>
+              </div>
+              <div ref={mapContainer} className="map-container" />
+              <MuiModal openState={open} handleClose={handleClose}/>
           </div>
-          <div className='button-wrapper'>
-            <IconButton variant="outlined" color={buttonColor} onClick={handleOpen}>
-              <SettingsIcon style={{ color: grey[900] }}/>
-            </IconButton>
+          <div className='sideBar'>
+            <div className='sideBar-percentage'>
+              <span className='percentNumber'>0.0</span>
+              <span>% </span>
+              <span>des rues trouvées</span>
+            </div>
+            <div className='sideBar-percentageWrapper'>
+              <div className='sideBar-percentageBar'></div>
+            </div>
+            <hr />
+            <div className='sideBar-history'>
+              <ul className='sideBar-streetFound'></ul>
+            </div>
           </div>
-          <div ref={mapContainer} className="map-container" />
-          <MuiModal openState={open} handleClose={handleClose}/>
         </div>
-        <div className='sideBar'>
-          <div className='sideBar-percentage'>
-            <span className='percentNumber'>0.0</span>
-            <span>% </span>
-            <span>des rues trouvées</span>
-          </div>
-          <div className='sideBar-percentageWrapper'>
-            <div className='sideBar-percentageBar'></div>
-          </div>
-          <hr />
-          <div className='sideBar-history'>
-            <ul className='sideBar-streetFound'></ul>
-          </div>
-        </div>
-      </div>
-    </MapContext.Provider>
+      </MapContext.Provider>
   );
 }
