@@ -73,6 +73,7 @@ footer, header, hgroup, menu, nav, section {
     left: 0;
     margin: 12px;
     border-radius: 4px;
+    overflow-y: scroll
   }
 
 .sideBar {

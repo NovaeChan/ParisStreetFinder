@@ -43,7 +43,6 @@ export function addToStreetFound(guess, datas){
     for(const street of datas){
         if(removeAccents(street.l_longmin.toLowerCase()) == guess || removeAccents(street.l_voie.toLowerCase()) == guess){
             streetFound.push({
-                id: street.n_sq_vo,
                 l_longmin: street.l_longmin,
                 data: {
                 "type": "Feature",
@@ -51,7 +50,6 @@ export function addToStreetFound(guess, datas){
                 }
             })
             lastFoundGuesses.push({
-                id: street.n_sq_vo,
                 l_longmin: street.l_longmin,
                 data: {
                 "type": "Feature",
